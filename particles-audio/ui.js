@@ -143,7 +143,7 @@ function keyPressed() {
       Z          Toggle UI
       X          Toggle background redraw
       C          Set a random particle colour
-      Space          Change connection distance formula
+      Space          Toggle react to audio
       `);
   }
 
