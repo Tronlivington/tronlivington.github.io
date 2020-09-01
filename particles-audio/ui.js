@@ -89,8 +89,6 @@ class ColourPicker extends UiElement {
 
   setValue(value) {
     this.element.color(color(value));
-    console.log(this.element.color);
-    console.log(this.element.color());
   }
 }
 
@@ -181,4 +179,13 @@ const setConfigValue = (variableName, value) => {
 
 const toggleConfigValue = (variableName) => {
   setConfigValue(variableName, !config[variableName]);
+}
+
+
+let frames = [];
+const displayFPS = (colour) => {
+  frames[frameCount % 60] = frameRate();
+  let fps = frames.reduce( (a, b) => (a || 0) + (b || 0), 0 ) / frames.length;
+  fill(colour);
+  text(floor(fps), width - 30, 30);
 }

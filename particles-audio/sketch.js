@@ -19,6 +19,7 @@ const config = {
   showParticles: true,
 
   uiColour: 'rgba(0, 100, 220, 1.0)',
+  showFPS: false,
 
   reactToAudio: true,
 
@@ -66,6 +67,7 @@ function setup() {
   ui.push(new Checkbox('showParticles'));
   ui.push(new Checkbox('animateConnectionHue'));
   ui.push(new Checkbox('reactToAudio'));
+  ui.push(new Checkbox('showFPS'));
 
   config.hideUI = true;
   ui.forEach( elem => elem.hide() );
@@ -85,15 +87,27 @@ let midEnergy;
 let highMidEnergy;
 let trebleEnergy;
 
+
 function draw() {
+
+  if (config.redrawBackground) {
+    resizeCanvas(windowWidth, windowHeight);
+    background(config.backgroundColour);
+  }
+
+  ui.forEach(elem => elem.update());
+
+  if (config.showFPS) {
+    displayFPS(config.uiColour);
+  }
 
   if (audioRunning && config.reactToAudio) {
     let spectrum = fft.analyze();
     bassEnergy = fft.getEnergy('bass');
-    lowMidEnergy = fft.getEnergy('lowMid');
-    midEnergy = fft.getEnergy('mid');
+    // lowMidEnergy = fft.getEnergy('lowMid');
+    // midEnergy = fft.getEnergy('mid');
     highMidEnergy = fft.getEnergy('highMid');
-    trebleEnergy = fft.getEnergy('treble');
+    // trebleEnergy = fft.getEnergy('treble');
 
     var maxConnectionDistance = 0.0012 * windowWidth * windowHeight / sqrt(config.particleCount);
     
@@ -108,10 +122,6 @@ function draw() {
   }
   t += 0.001;
 
-  if (config.redrawBackground) {
-    resizeCanvas(windowWidth, windowHeight);
-    background(config.backgroundColour);
-  }
 
   updateParticleCount();
 
@@ -121,7 +131,6 @@ function draw() {
     particle.draw();
   });
 
-  ui.forEach(elem => elem.update());
 
   if (!config.hideUI) {
     ui.forEach(elem => elem.draw());
@@ -137,5 +146,5 @@ function mousePressed() {
 }
 
 const animateConfigValue = (valueName, min, max, speed) => {
-  setConfigValue(valueName, map(sin(speed * t), -1, 1, min, max) );
+  setConfigValue(valueName, map(Math.sin(speed * t), -1, 1, min, max) );
 }
