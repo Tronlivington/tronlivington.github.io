@@ -6,12 +6,12 @@ class Branch {
   }
   
   show() {
-    stroke(255);
+    // stroke(255);
     line(this.start.x, this.start.y, this.end.x, this.end.y);
   }
 
   growBranch(angle) {
-    let branchVector = this.dir.copy().rotate(angle).mult(branchLengthRatio);
+    let branchVector = this.dir.copy().rotate(angle).mult(config.branchLengthRatio);
     let newEnd = branchVector.add(this.end);
     let newBranch = new Branch(this.end, newEnd);
     return newBranch;
@@ -26,8 +26,8 @@ class Tree {
     this.root = new Branch(rootStart, rootEnd);
     this.branches = [this.root];
     for (var i = 0; i < maxBranches; i++) {
-      this.branches.push(this.branches[i].growBranch(branchAngle));
-      this.branches.push(this.branches[i].growBranch(-branchAngle));
+      this.branches.push(this.branches[i].growBranch(config.branchAngle));
+      this.branches.push(this.branches[i].growBranch(-config.branchAngle));
     }
   }
 

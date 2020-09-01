@@ -1,5 +1,3 @@
-// Song: Legacy by Ezgod
-
 const config = {
   backgroundColour: "#0f0f0f",
   redrawBackground: true,
