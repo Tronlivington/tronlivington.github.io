@@ -31,7 +31,6 @@ class Particle {
 
   connectToNearby(particles, maxDistSquared) {
     for (let particle of particles) {
-      // if (this.pos.dist(particle.pos) < config.connectionDistance) {
       if (distSquared(this.pos, particle.pos) < maxDistSquared) {
         line(this.pos.x, this.pos.y, particle.pos.x, particle.pos.y);
       }

@@ -1,11 +1,8 @@
 
 let minBranchLength = 3;
-// let initialBranchLength = 150;
 
-let maxBranches = 1025;
-
-// let branchAngle = 1;
-// let branchLengthRatio = 0.67;
+// let maxBranches = 1025;
+let maxBranches = 513;
 
 let branchAngleSlider, branchLengthRatioSlider;
 
@@ -21,7 +18,7 @@ const config = {
 
   reactToAudio: true,
 
-  rotate: true,
+  rotate: false,
 
   ranges: {
     bass: {
@@ -45,7 +42,7 @@ const config = {
   initialBranchLength: 150,
   branchAngle: 1,
   branchLengthRatio: 0.67,
-  treeCount: 2,
+  treeCount: 4,
   hue: 0,
 };
 
@@ -88,6 +85,7 @@ function setup() {
 
 function draw() {
 
+  resizeCanvas(windowWidth, windowHeight);
   background(config.backgroundColour);
 
   if (!config.hideUI) {
@@ -96,7 +94,6 @@ function draw() {
 
   translate(width/2, height/2);
   
-  let hue = 50;
   if (audioRunning && config.reactToAudio) {
     fft.analyze();
     audioEnergy = {
@@ -124,7 +121,7 @@ function draw() {
   t += 0.001;
 
 
-  let tree = new Tree(rootStart, rootEnd);
+  let tree = new Tree(rootStart, rootEnd, config.branchAngle, config.branchLengthRatio);
 
   stroke(config.hue, 255, 255, 1);
   tree.show();

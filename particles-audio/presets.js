@@ -1,5 +1,5 @@
 const presets = [
-  {
+  { // 1
     particleSpeed: 3,
     particleCount: 200,
     connectionDistance: 100,
@@ -11,7 +11,7 @@ const presets = [
     connectionMode: 1,
     reactToAudio: true,
   },
-  {
+  { // 2
     particleSpeed: 2,
     particleCount: 800,
     connectionDistance: 50,
@@ -21,7 +21,7 @@ const presets = [
     connectionMode: 2,
     reactToAudio: true,
   },
-  {
+  { // 3
     particleSpeed: 1,
     particleCount: 50,
     connectionDistance: 300,
@@ -30,7 +30,7 @@ const presets = [
     connectionMode: 1,
     reactToAudio: true,
   },
-  {
+  { // 4
     particleSpeed: 3,
     particleCount: 800,
     connectionDistance: 30,
@@ -41,7 +41,7 @@ const presets = [
     animateConnectionHue: false,
     reactToAudio: true,
   },
-  {
+  { // 5
     particleSpeed: 1,
     particleCount: 40,
     connectionDistance: 300,
@@ -52,18 +52,18 @@ const presets = [
     connectionMode: 1,
     reactToAudio: true,
   },
-  {
+  { // 6
     particleSpeed: 1,
     particleCount: 600,
     connectionDistance: 80,
-    connectionStroke: 10,
+    connectionStroke: 15,
     connectionHue: 0,
     particleHue: 360,
     showParticles: true,
     animateConnectionHue: false,
     reactToAudio: true,
   },
-  {
+  { // 7
     particleSpeed: 1,
     particleCount: 50,
     connectionDistance: 300,
@@ -72,7 +72,7 @@ const presets = [
     connectionMode: 1,
     reactToAudio: false,
   },
-  {
+  { // 8
     particleSpeed: 2,
     particleCount: 200,
     connectionDistance: 100,
@@ -84,7 +84,7 @@ const presets = [
     connectionMode: 1,
     reactToAudio: false,
   },
-  {
+  { // 9
     particleSpeed: 0.5,
     particleCount: 800,
     connectionDistance: 0,

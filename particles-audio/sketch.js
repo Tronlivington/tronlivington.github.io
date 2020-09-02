@@ -66,12 +66,6 @@ function setup() {
   config.hideUI = true;
   ui.forEach((elem) => elem.hide());
 
-  timers["frame"] = new Timer();
-  timers["audio"] = new Timer();
-  timers["move"] = new Timer();
-  timers["connect"] = new Timer();
-  timers["displayP"] = new Timer();
-
   colorMode(HSB);
   fill(config.particleHue, 100, 100);
   for (let i = 0; i < width * config.particleCount; i++) {
@@ -81,7 +75,6 @@ function setup() {
 
 
 function draw() {
-  timers.frame.start();
 
   if (config.redrawBackground) {
     resizeCanvas(windowWidth, windowHeight);
@@ -94,7 +87,6 @@ function draw() {
     displayFPS(config.uiColour);
   }
 
-  timers.audio.start();
   if (audioRunning && config.reactToAudio) {
     updateAudioEnergies();
     var maxConnectionDistance =
@@ -109,7 +101,6 @@ function draw() {
     audioAnimate("connectionDistance", "highMid", 0, maxConnectionDistance);
     
   }
-  timers.audio.stop();
 
   if (config.animateConnectionHue) {
     animateConfigValue("connectionHue", 1, 360, 2);
@@ -117,11 +108,9 @@ function draw() {
 
   updateParticleCount();
 
-  timers.move.start();
   particles.forEach((particle) => particle.move());
-  timers.move.stop();
 
-  timers.connect.start();
+  // Generate connections
   if (config.connectionHue != 0) {
     colorMode(HSB);
     stroke(config.connectionHue, 100, 100);
@@ -132,9 +121,7 @@ function draw() {
   particles.forEach(function (particle, i) {
     particle.connectToNearby(particles.slice(+i + 1), distSquared);
   });
-  timers.connect.stop();
 
-  timers.displayP.start();
   if (config.showParticles) {
     noStroke();
     colorMode(HSB);
@@ -143,14 +130,12 @@ function draw() {
       particle.draw();
     });
   }
-  timers.displayP.stop();
 
   if (!config.hideUI) {
     ui.forEach((elem) => elem.draw());
   }
 
   t += 0.001;
-  timers.frame.stop();
 }
 
 function mousePressed() {
