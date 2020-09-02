@@ -23,6 +23,8 @@ const config = {
 
   redrawBackground: true,
   hideUI: false,
+
+  highFrameRate: false,
 };
 
 
@@ -41,6 +43,7 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   textSize(18);
   background(config.backgroundColour);
+  if (config.highFrameRate) { frameRate(144); }
 
   mic = new p5.AudioIn();
   mic.start();
@@ -97,7 +100,12 @@ function draw() {
     var maxConnectionDistance =
     (0.0008 * windowWidth * windowHeight) / sqrt(config.particleCount);
 
-    audioAnimate("particleSpeed", "bass", -1, 12);
+    let maxSpeed = 12;
+    if (config.highFrameRate) {
+      maxSpeed = maxSpeed / 2;
+    }
+    
+    audioAnimate("particleSpeed", "bass", -1, maxSpeed);
     audioAnimate("connectionDistance", "highMid", 0, maxConnectionDistance);
     
   }
@@ -177,26 +185,26 @@ const initialiseAudioEnergies = () => {
   audioEnergies.bass = {
     curr: 0,
     min: 0,
-    max: 0
+    max: 1
   };
   audioEnergies.lowMid = {
     curr: 0,
     min: 0,
-    max: 0
+    max: 1
   };
   audioEnergies.mid = {
     curr: 0,
     min: 0,
-    max: 0
+    max: 1
   };
   audioEnergies.highMid = {
     curr: 0,
     min: 0,
-    max: 0
+    max: 1
   };
   audioEnergies.treble = {
     curr: 0,
     min: 0,
-    max: 0
+    max: 1
   };
 }

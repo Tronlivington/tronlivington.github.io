@@ -138,6 +138,15 @@ function keyPressed() {
       initialiseAudioEnergies();
       break;
 
+    case 220: // Toggle high FPS on \
+      if (config.highFrameRate) {
+       frameRate(60); 
+      } else {
+        frameRate(144);
+      }
+      setConfigValue("highFrameRate", !config.highFrameRate);
+      break;
+
     case 191: // Show controls on ?
       alert(`
       1-9       Apply a preset
@@ -147,6 +156,7 @@ function keyPressed() {
       Z          Toggle UI
       X          Toggle background redraw
       C          Set a random particle colour
+      V          Toggle show particles
       B          Toggle show FPS
       Space          Toggle react to audio
       `);
