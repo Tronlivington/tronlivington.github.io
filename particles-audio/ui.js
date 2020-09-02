@@ -123,6 +123,7 @@ function keyPressed() {
       break;
 
     case 66: // b
+      toggleConfigValue('showFPS');
       break;
 
     case 32: // Toggle audio visualiser on Space
@@ -146,6 +147,7 @@ function keyPressed() {
       Z          Toggle UI
       X          Toggle background redraw
       C          Set a random particle colour
+      B          Toggle show FPS
       Space          Toggle react to audio
       `);
   }

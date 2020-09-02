@@ -1,11 +1,13 @@
 class Particle {
 
   constructor() {
-    this.r = random(1, config.particleMaxRadius);
-    this.d = this.r * 2;
-    this.pos = createVector( random(this.r, width), random(this.r, height) );
+    this.pos = createVector( random(0, width), random(0, height) );
     this.dir = createVector( random(-1, 1), random(-1, 1) );
     this.vel = p5.Vector.mult(this.dir, config.particleSpeed);
+
+    let vSqr = this.dir.x * this.dir.x + this.dir.y * this.dir.y;
+    this.r = map(vSqr, 0, 2, 0.5, config.particleMaxRadius);
+    this.d = this.r * 2;
   }
 
   draw() {

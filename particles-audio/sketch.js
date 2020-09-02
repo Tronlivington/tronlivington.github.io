@@ -1,5 +1,5 @@
 const config = {
-  particleMaxRadius: 3,
+  particleMaxRadius: 5,
   particleSpeed: 3,
   particleCount: 200,
 
@@ -95,9 +95,9 @@ function draw() {
   if (audioRunning && config.reactToAudio) {
     updateAudioEnergies();
     var maxConnectionDistance =
-    (0.0012 * windowWidth * windowHeight) / sqrt(config.particleCount);
+    (0.0008 * windowWidth * windowHeight) / sqrt(config.particleCount);
 
-    audioAnimate("particleSpeed", "bass", 0, 15);
+    audioAnimate("particleSpeed", "bass", -1, 12);
     audioAnimate("connectionDistance", "highMid", 0, maxConnectionDistance);
     
   }
