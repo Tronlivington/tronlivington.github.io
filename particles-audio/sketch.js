@@ -1,6 +1,4 @@
-
 const config = {
-
   particleMaxRadius: 3,
   particleSpeed: 3,
   particleCount: 200,
@@ -11,43 +9,35 @@ const config = {
   connectionHue: 0,
   animateConnectionHue: false,
 
-  backgroundColour: '#0f0f0f',
+  backgroundColour: "#0f0f0f",
 
   particleHue: 100,
   particleSaturation: 100,
   particleBrightness: 100,
   showParticles: true,
 
-  uiColour: 'rgba(0, 100, 220, 1.0)',
+  uiColour: "rgba(0, 100, 220, 1.0)",
   showFPS: false,
 
   reactToAudio: true,
 
   redrawBackground: true,
   hideUI: false,
-
-  ranges: {
-    bass: {
-      low: 90,
-      high: 220
-    },
-    highMid: {
-      low: 0,
-      high: 110
-    }
-  },
-
-  
 };
 
 
 const particles = [];
 const ui = [];
+
+const timers = {};
+
 let mic, amplitude, fft;
 let audioRunning = false;
+const audioEnergies = {}
+
+let t = 0;
 
 function setup() {
-
   createCanvas(windowWidth, windowHeight);
   textSize(18);
   background(config.backgroundColour);
@@ -56,86 +46,103 @@ function setup() {
   mic.start();
   fft = new p5.FFT();
   fft.setInput(mic);
+  initialiseAudioEnergies();
 
-  ui.push(new Slider('particleSpeed', -15, 15, 0.1));
-  ui.push(new Slider('particleCount', 0, 1000));
-  ui.push(new Slider('connectionDistance', 0, 300));
-  ui.push(new Slider('connectionStroke', 0, 255));
-  ui.push(new Slider('connectionHue', 0, 360));
-  ui.push(new Slider('particleHue', 0, 360));
-  ui.push(new Checkbox('redrawBackground'));
-  ui.push(new Checkbox('showParticles'));
-  ui.push(new Checkbox('animateConnectionHue'));
-  ui.push(new Checkbox('reactToAudio'));
-  ui.push(new Checkbox('showFPS'));
+  ui.push(new Slider("particleSpeed", -15, 15, 0.1));
+  ui.push(new Slider("particleCount", 0, 1000));
+  ui.push(new Slider("connectionDistance", 0, 300));
+  ui.push(new Slider("connectionStroke", 0, 255));
+  ui.push(new Slider("connectionHue", 0, 360));
+  ui.push(new Slider("particleHue", 0, 360));
+  ui.push(new Checkbox("redrawBackground"));
+  ui.push(new Checkbox("showParticles"));
+  ui.push(new Checkbox("animateConnectionHue"));
+  ui.push(new Checkbox("reactToAudio"));
+  ui.push(new Checkbox("showFPS"));
 
   config.hideUI = true;
-  ui.forEach( elem => elem.hide() );
+  ui.forEach((elem) => elem.hide());
+
+  timers["frame"] = new Timer();
+  timers["audio"] = new Timer();
+  timers["move"] = new Timer();
+  timers["connect"] = new Timer();
+  timers["displayP"] = new Timer();
 
   colorMode(HSB);
   fill(config.particleHue, 100, 100);
   for (let i = 0; i < width * config.particleCount; i++) {
     particles.push(new Particle());
   }
-
 }
-
-let t = 0;
-let bassEnergy;
-let lowMidEnergy;
-let midEnergy;
-let highMidEnergy;
-let trebleEnergy;
 
 
 function draw() {
+  timers.frame.start();
 
   if (config.redrawBackground) {
     resizeCanvas(windowWidth, windowHeight);
     background(config.backgroundColour);
   }
 
-  ui.forEach(elem => elem.update());
+  ui.forEach((elem) => elem.update());
 
   if (config.showFPS) {
     displayFPS(config.uiColour);
   }
 
+  timers.audio.start();
   if (audioRunning && config.reactToAudio) {
-    let spectrum = fft.analyze();
-    bassEnergy = fft.getEnergy('bass');
-    // lowMidEnergy = fft.getEnergy('lowMid');
-    // midEnergy = fft.getEnergy('mid');
-    highMidEnergy = fft.getEnergy('highMid');
-    // trebleEnergy = fft.getEnergy('treble');
+    updateAudioEnergies();
+    var maxConnectionDistance =
+    (0.0012 * windowWidth * windowHeight) / sqrt(config.particleCount);
 
-    var maxConnectionDistance = 0.0012 * windowWidth * windowHeight / sqrt(config.particleCount);
+    audioAnimate("particleSpeed", "bass", 0, 15);
+    audioAnimate("connectionDistance", "highMid", 0, maxConnectionDistance);
     
-    setConfigValue('particleSpeed', map(bassEnergy, config.ranges.bass.low, config.ranges.bass.high, 0, 15));
-    setConfigValue('connectionDistance', map(highMidEnergy, config.ranges.highMid.low, config.ranges.highMid.high, 0, maxConnectionDistance));
-    // setConfigValue('particleCount', map(highMidEnergy, 0, 120, 10, 500));
-
   }
+  timers.audio.stop();
 
   if (config.animateConnectionHue) {
-    animateConfigValue('connectionHue', 1, 360, 2);
+    animateConfigValue("connectionHue", 1, 360, 2);
   }
-  t += 0.001;
-
 
   updateParticleCount();
 
-  particles.forEach( particle => particle.move() );
-  particles.forEach( function(particle, i) {
-    particle.connectToNearby(particles.slice(+i+1));
-    particle.draw();
-  });
+  timers.move.start();
+  particles.forEach((particle) => particle.move());
+  timers.move.stop();
 
+  timers.connect.start();
+  if (config.connectionHue != 0) {
+    colorMode(HSB);
+    stroke(config.connectionHue, 100, 100);
+  } else {
+    stroke(config.connectionStroke);
+  }
+  let distSquared = config.connectionDistance * config.connectionDistance;
+  particles.forEach(function (particle, i) {
+    particle.connectToNearby(particles.slice(+i + 1), distSquared);
+  });
+  timers.connect.stop();
+
+  timers.displayP.start();
+  if (config.showParticles) {
+    noStroke();
+    colorMode(HSB);
+    fill(config.particleHue, config.particleSaturation, config.particleBrightness);
+    particles.forEach(function (particle, i) {
+      particle.draw();
+    });
+  }
+  timers.displayP.stop();
 
   if (!config.hideUI) {
-    ui.forEach(elem => elem.draw());
+    ui.forEach((elem) => elem.draw());
   }
 
+  t += 0.001;
+  timers.frame.stop();
 }
 
 function mousePressed() {
@@ -146,5 +153,50 @@ function mousePressed() {
 }
 
 const animateConfigValue = (valueName, min, max, speed) => {
-  setConfigValue(valueName, map(Math.sin(speed * t), -1, 1, min, max) );
+  setConfigValue(valueName, map(Math.sin(speed * t), -1, 1, min, max));
+};
+
+const updateAudioEnergies = () => {
+  fft.analyze();
+  for (let range in audioEnergies) {
+    let vals = audioEnergies[range];
+    vals.curr = fft.getEnergy(range);
+    if (vals.curr > vals.max) { vals.max = vals.curr; }
+    if (vals.curr < vals.min) { vals.min = vals.curr; }
+  }
+}
+
+
+const audioAnimate = (configProperty, frequencyRange, minValue, maxValue) => {
+  let vals = audioEnergies[frequencyRange];
+  let propVal = map(vals.curr, vals.min, vals.max, minValue, maxValue);
+  setConfigValue(configProperty, propVal);
+}
+
+const initialiseAudioEnergies = () => {
+  audioEnergies.bass = {
+    curr: 0,
+    min: 0,
+    max: 0
+  };
+  audioEnergies.lowMid = {
+    curr: 0,
+    min: 0,
+    max: 0
+  };
+  audioEnergies.mid = {
+    curr: 0,
+    min: 0,
+    max: 0
+  };
+  audioEnergies.highMid = {
+    curr: 0,
+    min: 0,
+    max: 0
+  };
+  audioEnergies.treble = {
+    curr: 0,
+    min: 0,
+    max: 0
+  };
 }

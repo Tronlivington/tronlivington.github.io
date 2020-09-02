@@ -2,18 +2,14 @@ class Particle {
 
   constructor() {
     this.r = random(1, config.particleMaxRadius);
+    this.d = this.r * 2;
     this.pos = createVector( random(this.r, width), random(this.r, height) );
     this.dir = createVector( random(-1, 1), random(-1, 1) );
     this.vel = p5.Vector.mult(this.dir, config.particleSpeed);
   }
 
   draw() {
-    noStroke();
-    colorMode(HSB);
-    fill(config.particleHue, config.particleSaturation, config.particleBrightness);
-    if (config.showParticles) {
-      circle(this.pos.x, this.pos.y, this.r * 2);
-    }
+    circle(this.pos.x, this.pos.y, this.d);
   }
 
   move() {
@@ -31,22 +27,22 @@ class Particle {
     }
   }
 
-  connectToNearby(particles) {
+  connectToNearby(particles, maxDistSquared) {
     for (let particle of particles) {
-      if (this.pos.dist(particle.pos) < config.connectionDistance) {
-        if (config.connectionHue != 0) {
-          colorMode(HSB);
-          stroke(config.connectionHue, 100, 100);
-        } else {
-          stroke(config.connectionStroke);
-        }
-
-
+      // if (this.pos.dist(particle.pos) < config.connectionDistance) {
+      if (distSquared(this.pos, particle.pos) < maxDistSquared) {
         line(this.pos.x, this.pos.y, particle.pos.x, particle.pos.y);
       }
     }
   }
 
+}
+
+
+const distSquared = (v1, v2) => {
+  let dx = v1.x - v2.x;
+  let dy = v1.y - v2.y;
+  return dx * dx + dy * dy;
 }
 
 

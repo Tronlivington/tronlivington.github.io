@@ -133,11 +133,16 @@ function keyPressed() {
       fullscreen(!fullscreen());
       break;
 
+    case 82: // Reset audio levels on R
+      initialiseAudioEnergies();
+      break;
+
     case 191: // Show controls on ?
       alert(`
       1-9       Apply a preset
       Scroll   Change particle speed
       F          Toggle fullscreen
+      R          Reset audio levels
       Z          Toggle UI
       X          Toggle background redraw
       C          Set a random particle colour
