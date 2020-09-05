@@ -154,6 +154,10 @@ function keyPressed() {
     let presetNumber = keyCode - 49;
     applyPreset(presetNumber);
   }
+
+  if (keyCode == 48) {
+    applyPreset(9);
+  }
 }
 
 // Set speed with mouse wheel

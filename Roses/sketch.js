@@ -78,7 +78,7 @@ function draw() {
   }
 
   if (config.oscillateN) {
-    oscillate("n", 1, 30, 0.002);
+    oscillate("n", 1, 30, 0.0005);
   }
   if (config.oscillateD) {
     oscillate("d", 0, 360, 0.00005);
