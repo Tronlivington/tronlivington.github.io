@@ -26,8 +26,9 @@ const config = {
 
   startingSize: 100,
   minSize: 8,
+  maxSize: 600,
   sizeRatio: 0.5,
-  offset: 20,
+  offset: 7,
 };
 
 const ui = [];
@@ -50,7 +51,7 @@ function setup() {
   ui.push(new Slider("startingSize", 0, 600, 1));
   ui.push(new Slider("sizeRatio", 0, 0.5, 0.01));
   ui.push(new Slider("offset", 0, 100, 1));
-  ui.push(new Checkbox("booleanVariable"));
+  ui.push(new Checkbox("reactToAudio"));
 
   config.hideUI = true;
   if (config.hideUI) {
@@ -81,9 +82,9 @@ function draw() {
       treble: fft.getEnergy("treble")
     };
 
-    animateAudio("startingSize", "mid", 0, 500);
+    animateAudio("startingSize", "mid", 0, config.maxSize);
     animateAudio("sizeRatio", "bass", 0, 0.5);
-    a += map(audioEnergy.highMid, config.ranges.highMid.low, config.ranges.highMid.high, -0.01, 0.05);
+    a += map(audioEnergy.highMid, config.ranges.highMid.low, config.ranges.highMid.high, -0.01, 0.02);
     // a += 0.1;
     rotate(a);
 
@@ -149,5 +150,7 @@ const makeSquare = (size) => {
     pop();
   }
   // ellipse(0, 0, size, size)
+  stroke(0, 0, 0, 20);
+  strokeWeight(3);
   rect(0, 0, size, size);
 };
