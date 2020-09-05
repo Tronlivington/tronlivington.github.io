@@ -15,16 +15,27 @@ const config = {
   showRose: false,
   showMaurerRose: true,
   zScale: 1,
-  rotate: false,
+  rotate: true,
   popOut: false,
+  fill: true,
+  triangleStrip: true,
+
+  oscillateN: false,
+  oscillateD: false,
 };
 
 const ui = [];
+let font;
+
+function preload() {
+  font = loadFont('Roboto-Regular.ttf');
+}
 
 function setup() {
   // createCanvas(windowWidth, windowHeight);
   createCanvas(windowWidth, windowHeight, WEBGL);
   textSize(18);
+  textFont(font);
   background(config.backgroundColour);
 
   ui.push(new Slider("n", 1, 30, 1));
@@ -34,6 +45,10 @@ function setup() {
   ui.push(new Checkbox("showMaurerRose"));
   ui.push(new Checkbox("rotate"));
   ui.push(new Checkbox("popOut"));
+  ui.push(new Checkbox("fill"));
+  ui.push(new Checkbox("triangleStrip"));
+  ui.push(new Checkbox("oscillateN"));
+  ui.push(new Checkbox("oscillateD"));
 
   if (config.hideUI) {
     ui.forEach((elem) => elem.hide());
@@ -47,6 +62,8 @@ let points = 10000;
 
 let offset = 0;
 function draw() {
+  // orbitControl();
+
   if (config.redrawBackground) {
     if (width != windowWidth || height != windowHeight) {
       resizeCanvas(windowWidth, windowHeight);
@@ -60,8 +77,12 @@ function draw() {
     ui.forEach((elem) => elem.draw());
   }
 
-  orbitControl();
-
+  if (config.oscillateN) {
+    oscillate("n", 1, 30, 0.002);
+  }
+  if (config.oscillateD) {
+    oscillate("d", 0, 360, 0.00005);
+  }
 
   // CONTENTS
   // translate(width / 2, height / 2);
@@ -74,6 +95,7 @@ function draw() {
   }
   // rotateX(45);
   rotateY(offset);
+  // rotateZ(offset);
 
   if (config.popOut) {
     translate(0, 0, scale/2);
@@ -82,9 +104,25 @@ function draw() {
   // Maurer Rose
   if (config.showMaurerRose) {
 
-    stroke(255, 255, 255, 100);
+    // stroke(0);
+    stroke(255);
     strokeWeight(1);
-    beginShape();
+    // strokeWeight(3);
+
+    if (config.fill) {
+      fill(0);
+      // fill(100);
+      // fill(250);
+    } else {
+      noFill();
+    }
+
+    if (config.triangleStrip) {
+      // beginShape(TRIANGLE_FAN);
+      beginShape(TRIANGLE_STRIP);
+    } else {
+      beginShape();
+    }
     for (let i = 0; i < 361; i++) {
       let k = i * config.d;
       let r = scale * sin(config.n * k);
@@ -103,7 +141,8 @@ function draw() {
 
   // Rose
   if (config.showRose) {
-    stroke(0, 0, 255, 255);
+    stroke(255, 0, 0, 255);
+    noFill();
     strokeWeight(3);
     beginShape();
     for (let i = 0; i < 361; i++) {
@@ -127,3 +166,8 @@ const p2c = (r, angle) => ({
   x: r * cos(angle),
   y: r * sin(angle),
 });
+
+
+const oscillate = (prop, min, max, speed) => {
+  setConfigValue(prop, map(Math.sin(speed * frameCount), -1, 1, min, max));
+}

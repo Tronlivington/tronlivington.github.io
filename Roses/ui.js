@@ -26,7 +26,6 @@ class Slider extends UiElement {
     super(variableName);
     this.element = createSlider(minVal, maxVal, config[variableName], step);
     this.element.position(20, 20 * this.index);
-    this.captionPosition = createVector(this.element.x * 2 + this.element.width, this.element.y + 15);
   }
 
   update() {
@@ -34,6 +33,7 @@ class Slider extends UiElement {
   }
 
   draw() {
+    this.captionPosition = createVector(this.element.x * 2 + this.element.width - width/2, this.element.y + 15 - height/2);
     this.drawCaption(`${this.variableName}: ${this.element.value()}`);
   }
 
@@ -48,7 +48,6 @@ class Checkbox extends UiElement {
     super(variableName);
     this.element = createCheckbox('', config[variableName]);
     this.element.position(130, 20 * this.index);
-    this.captionPosition = createVector(this.element.x + 40, this.element.y + 15);
   }
 
   invertCheck() {
@@ -60,6 +59,7 @@ class Checkbox extends UiElement {
   }
 
   draw() {
+    this.captionPosition = createVector(this.element.x + 40 - width/2, this.element.y + 15 - height/2);
     this.drawCaption(`${this.variableName}`);
   }
 
@@ -113,20 +113,24 @@ function keyPressed() {
       break;
 
     case 88: // X - Toggle background redraw
-      setConfigValue('redrawBackground', !config.redrawBackground);
+      toggleConfigValue('redrawBackground');
       break;
     
-    case 67: // C
+    case 67: // C - Toggle pop out
+      toggleConfigValue('popOut');
       break;
 
-    case 86: // V
+    case 86: // V - Toggle rotation
+      toggleConfigValue('rotate');
       break;
 
-    case 66: // b
+    case 66: // b - Toggle oscillation
+      toggleConfigValue('oscillateD');
+      toggleConfigValue('oscillateN');
       break;
 
     case 32: // Space - Toggle audio visualiser
-      toggleConfigValue('reactToAudio');
+      // toggleConfigValue('reactToAudio');
       break;
 
     case 70: // F - Fullscreen
@@ -140,7 +144,8 @@ function keyPressed() {
       F          Toggle fullscreen
       Z          Toggle UI
       X          Toggle background redraw
-      Space          Toggle Audio Visualiser
+      C          Toggle pop out
+      V          Toggle rotation
       `);
   }
 
