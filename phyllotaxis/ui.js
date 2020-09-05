@@ -117,7 +117,8 @@ function keyPressed() {
       setConfigValue('redrawBackground', !config.redrawBackground);
       break;
     
-    case 67: // C
+    case 67: // C - Toggle show FPS
+      toggleConfigValue('showFPS');
       break;
 
     case 86: // V
@@ -127,6 +128,7 @@ function keyPressed() {
       break;
 
     case 32: // Space
+      toggleConfigValue('reactToAudio');
       break;
 
     case 70: // F - Fullscreen

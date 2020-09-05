@@ -3,7 +3,7 @@ const config = {
   redrawBackground: true,
   uiColour: "rgba(0, 100, 220, 1.0)",
   hideUI: false,
-  showFPS: true,
+  showFPS: false,
 
   numericVariable: 50,
   booleanVariable: false,
@@ -13,6 +13,7 @@ const config = {
   n: 5,
   dotSize: 5,
   hueOffset: 0,
+  maxDots: 5000,
 
   reactToAudio: true,
 
@@ -31,7 +32,7 @@ function setup() {
   background(config.backgroundColour);
 
   ui.push(new Slider("c", 0, 10, 0.1));
-  ui.push(new Slider("divAngle", 137, 138, 0.001));
+  ui.push(new Slider("divAngle", 137, 138, 0.0001));
   ui.push(new Slider("dotSize", 1, 15, 0.1));
   ui.push(new Checkbox("redrawBackground"));
   ui.push(new Checkbox("reactToAudio"));
@@ -49,8 +50,6 @@ function setup() {
   angleMode(DEGREES);
 }
 
-let n = 0;
-let maxDots = 5000;
 
 function draw() {
   if (config.redrawBackground) {
@@ -71,13 +70,13 @@ function draw() {
   if (audioRunning && config.reactToAudio) {
     updateAudioEnergies();
     
-    audioAnimate("hueOffset", "highMid", 0, 720, 20);
-    audioAnimate("divAngle", "mid", 137.15, 137.85, 0.002);
-    audioAnimate("dotSize", "lowMid", 1, 15, 1);
-    audioAnimate("c", "bass", 5, 10, 1);
+    audioAnimate("hueOffset", "highMid", 0, 720, 10);
+    audioAnimate("maxDots", "bass", 0, 2000, 50);
+    audioAnimate("c", "mid", 4, 12, 1);
     
   }
 
+  oscillate("divAngle", 137.15, 137.85, 0.002);
 
   translate(width / 2, height / 2);
   rotate(t);
@@ -87,30 +86,29 @@ function draw() {
   colorMode(HSB);
   let points = [];
 
-  for (let i = 0; i < maxDots; i++) {
+  for (let n = 0; n < config.maxDots; n++) {
     let phi = n * config.divAngle;
     let r = config.c * sqrt(n);
     let { x, y } = polar2Cart(r, phi);
 
     let hue = (r + config.hueOffset) % 360;
-    n += 1;
     points.push({
       x: x,
       y: y,
       hue: hue,
+      size: map(n, 0, config.maxDots, 3, 15)
     });
   }
-  n = 0
 
   for (let point of points) {
     fill(point.hue, 255, 255);
-    ellipse(point.x, point.y, config.dotSize, config.dotSize);
+    ellipse(point.x, point.y, point.size, point.size);
   }
 
 }
 
 const oscillate = (valueName, min, max, speed) => {
-  setConfigValue(valueName, map(sin(speed * t), -1, 1, min, max));
+  setConfigValue(valueName, map(sin(speed * frameCount), -1, 1, min, max));
 };
 
 const polar2Cart = (r, angle) => ({
