@@ -13,7 +13,8 @@ const config = {
   n: 5,
   dotSize: 5,
   hueOffset: 0,
-  maxDots: 5000,
+  maxDots: 2000,
+  dotCount: 10,
 
   reactToAudio: true,
 
@@ -28,6 +29,7 @@ const audioEnergies = {}
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+  // createCanvas(windowWidth, windowHeight, WEBGL);
   textSize(18);
   background(config.backgroundColour);
 
@@ -71,7 +73,7 @@ function draw() {
     updateAudioEnergies();
     
     audioAnimate("hueOffset", "highMid", 0, 720, 10);
-    audioAnimate("maxDots", "bass", 0, 2000, 50);
+    audioAnimate("dotCount", "bass", 0, config.maxDots, 50);
     audioAnimate("c", "mid", 4, 12, 1);
     
   }
@@ -86,7 +88,7 @@ function draw() {
   colorMode(HSB);
   let points = [];
 
-  for (let n = 0; n < config.maxDots; n++) {
+  for (let n = 0; n < config.dotCount; n++) {
     let phi = n * config.divAngle;
     let r = config.c * sqrt(n);
     let { x, y } = polar2Cart(r, phi);
@@ -96,12 +98,13 @@ function draw() {
       x: x,
       y: y,
       hue: hue,
+      // size: map(n, 0, config.dotCount, 3, 15)
       size: map(n, 0, config.maxDots, 3, 15)
     });
   }
 
   for (let point of points) {
-    fill(point.hue, 255, 255);
+    fill(point.hue, 80, 80);
     ellipse(point.x, point.y, point.size, point.size);
   }
 
