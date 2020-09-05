@@ -159,6 +159,12 @@ function mouseWheel(event) {
 }
 
 
+function mousePressed() {
+  if (!audioRunning) {
+    userStartAudio();
+    audioRunning = true;
+  }
+}
 
 // ----------------------- Helper Functions -----------------------
 const applyPreset = (index) => {
