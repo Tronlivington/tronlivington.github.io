@@ -2,7 +2,7 @@ const config = {
   backgroundColour: "#0f0f0f",
   redrawBackground: true,
   uiColour: "rgba(0, 100, 220, 1.0)",
-  hideUI: false,
+  hideUI: true,
   showFPS: false,
 
   numericVariable: 50,
