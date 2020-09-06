@@ -11,24 +11,24 @@ const config = {
 
   ranges: {
     bass: {
-      low: 60,
-      high: 200,
+      low: 80,
+      high: 250,
     },
     mid: {
-      low: 0,
-      high: 140
+      low: 40,
+      high: 180
     },
     highMid: {
       low: 0,
-      high: 110
+      high: 150
     }
   },
 
   startingSize: 100,
   minSize: 8,
-  maxSize: 600,
-  sizeRatio: 0.5,
-  offset: 7,
+  maxSize: 550,
+  sizeRatio: 0.49,
+  offset: 4,
 };
 
 const ui = [];
@@ -48,8 +48,8 @@ function setup() {
   fft.setInput(mic);
   smooth(1);
 
-  ui.push(new Slider("startingSize", 0, 600, 1));
-  ui.push(new Slider("sizeRatio", 0, 0.5, 0.01));
+  ui.push(new Slider("startingSize", 0, config.maxSize, 1));
+  ui.push(new Slider("sizeRatio", 0, 0.49, 0.01));
   ui.push(new Slider("offset", 0, 100, 1));
   ui.push(new Checkbox("reactToAudio"));
 
@@ -128,8 +128,8 @@ const animateAudio = (configPropertyName, audioEnergyName, min, max) => {
 const makeSquare = (size) => {
   stroke(0);
   colorMode(HSB);
-  let hue = map(size, config.minSize, config.startingSize, 0, 255);
-  fill(hue, 255, 255, 1);
+  let hue = map(size, config.minSize, config.startingSize, 0, 600) % 360;
+  fill(hue, 100, 100, 1);
   let newSize = size * config.sizeRatio;
   if (newSize > config.minSize) {
     push();
