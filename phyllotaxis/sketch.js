@@ -2,7 +2,7 @@ const config = {
   backgroundColour: "#0f0f0f",
   redrawBackground: true,
   uiColour: "rgba(0, 100, 220, 1.0)",
-  hideUI: true,
+  hideUI: false,
   showFPS: false,
 
   numericVariable: 50,
@@ -33,7 +33,10 @@ function setup() {
   textSize(18);
   background(config.backgroundColour);
 
-  ui.push(new Slider("c", 0, 10, 0.1));
+  ui.push(new Slider("maxDots", 100, 5000, 1));
+  ui.push(new Slider("dotCount", 0, 5000, 1));
+  ui.push(new Slider("hueOffset", 0, 720, 0.01));
+  ui.push(new Slider("c", 0, 12, 0.1));
   ui.push(new Slider("divAngle", 137, 138, 0.0001));
   ui.push(new Slider("dotSize", 1, 15, 0.1));
   ui.push(new Checkbox("redrawBackground"));
@@ -73,8 +76,10 @@ function draw() {
     updateAudioEnergies();
     
     audioAnimate("hueOffset", "highMid", 0, 720, 10);
-    audioAnimate("dotCount", "bass", 0, config.maxDots, 50);
-    audioAnimate("c", "mid", 4, 12, 1);
+    audioAnimate("dotCount", "mid", 0, config.maxDots, 50);
+    // audioAnimate("dotCount", "amp", 0, config.maxDots, 50);
+    audioAnimate("c", "lowMid", 4, 12, 1);
+    // audioAnimate("c", "bass", 4, 12, 0.5);
     
   }
 
@@ -93,7 +98,7 @@ function draw() {
     let r = config.c * sqrt(n);
     let { x, y } = polar2Cart(r, phi);
 
-    let hue = (r + config.hueOffset) % 360;
+    let hue = (r/1.5 + config.hueOffset) % 360;
     points.push({
       x: x,
       y: y,
@@ -131,7 +136,7 @@ const updateAudioEnergies = () => {
   fft.analyze();
   for (let range in audioEnergies) {
     let vals = audioEnergies[range];
-    vals.curr = fft.getEnergy(range);
+    vals.curr = range == "amp" ? mic.getLevel(1) : fft.getEnergy(range);
     if (vals.curr > vals.max) { vals.max = vals.curr; }
     if (vals.curr < vals.min) { vals.min = vals.curr; }
   }
@@ -151,6 +156,11 @@ const audioAnimate = (configProperty, frequencyRange, minValue, maxValue, maxCha
 }
 
 const initialiseAudioEnergies = () => {
+  audioEnergies.amp = {
+    curr: 0,
+    min: 0,
+    max: 0.001
+  };
   audioEnergies.bass = {
     curr: 0,
     min: 0,
