@@ -25,6 +25,8 @@ const config = {
   hideUI: false,
 
   highFrameRate: false,
+
+  currentPreset: 0,
 };
 
 
@@ -47,7 +49,7 @@ function setup() {
 
   mic = new p5.AudioIn();
   mic.start();
-  fft = new p5.FFT();
+  fft = new p5.FFT(0.4);
   fft.setInput(mic);
   initialiseAudioEnergies();
 
@@ -142,6 +144,12 @@ function mousePressed() {
   if (!audioRunning) {
     userStartAudio();
     audioRunning = true;
+  } else {
+    let nextPresetIndex = config.currentPreset + 1;
+    if (nextPresetIndex >= presets.length) {
+      nextPresetIndex = 0;
+    }
+    applyPreset(nextPresetIndex);
   }
 }
 

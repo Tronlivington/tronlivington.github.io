@@ -183,6 +183,7 @@ const applyPreset = (index) => {
     let value = preset[variableName];
     setConfigValue(variableName, value);
   }
+  config.currentPreset = index;
 }
 
 const setConfigValue = (variableName, value) => {
