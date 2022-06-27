@@ -126,8 +126,16 @@ function keyPressed() {
       toggleConfigValue('showFPS');
       break;
 
-    case 32: // Toggle audio visualiser on Space
+    case 65: // Toggle audio visualiser on a
       toggleConfigValue('reactToAudio');
+      break;
+
+    case 32: // Cycle preset on Space
+      let nextPresetIndex = config.currentPreset + 1;
+      if (nextPresetIndex >= presets.length) {
+        nextPresetIndex = 0;
+      }
+      applyPreset(nextPresetIndex);
       break;
 
     case 70: // Fullscreen on f
@@ -158,7 +166,8 @@ function keyPressed() {
       C          Set a random particle colour
       V          Toggle show particles
       B          Toggle show FPS
-      Space          Toggle react to audio
+      A          Toggle react to audio
+      Space      Cycle through presets
       `);
   }
 

@@ -144,12 +144,6 @@ function mousePressed() {
   if (!audioRunning) {
     userStartAudio();
     audioRunning = true;
-  } else {
-    let nextPresetIndex = config.currentPreset + 1;
-    if (nextPresetIndex >= presets.length) {
-      nextPresetIndex = 0;
-    }
-    applyPreset(nextPresetIndex);
   }
 }
 
