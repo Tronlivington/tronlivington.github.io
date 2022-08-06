@@ -48,7 +48,7 @@ function setup() {
 
   mic = new p5.AudioIn();
   mic.start();
-  fft = new p5.FFT();
+  fft = new p5.FFT(0.5);
   fft.setInput(mic);
   initialiseAudioEnergies();
 
@@ -81,9 +81,11 @@ function draw() {
     audioAnimate("c", "lowMid", 4, 12, 1);
     // audioAnimate("c", "bass", 4, 12, 0.5);
     
+    // audioAnimate("divAngle", "bass", 137.5, 137.65, 0.002);
+
   }
 
-  oscillate("divAngle", 137.15, 137.85, 0.002);
+  oscillate("divAngle", 137.5, 137.65, 0.002);
 
   translate(width / 2, height / 2);
   rotate(t);

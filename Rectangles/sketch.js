@@ -11,18 +11,11 @@ const config = {
   
   reactToAudio: false,
 
-  ranges: {
-    bass: {
-      high: 200,
-      low: 60
-    }
-  }
 };
 
 const ui = [];
 let t = 0;
 let audioRunning = false;
-let bassEnergy, lowMidEnergy, midEnergy, highMidEnergy, trebleEnergy;
 
 function setup() {
 
@@ -32,8 +25,9 @@ function setup() {
 
   mic = new p5.AudioIn();
   mic.start();
-  fft = new p5.FFT();
+  fft = new p5.FFT(0.4);
   fft.setInput(mic);
+  initialiseAudioEnergies();
 
   ui.push(new Slider('numericVariable', -15, 15, 0.1));
   ui.push(new Checkbox('booleanVariable'));
@@ -49,14 +43,9 @@ function setup() {
 function draw() {
 
   if (audioRunning && config.reactToAudio) {
-    let spectrum = fft.analyze();
-    bassEnergy = fft.getEnergy('bass');
-    lowMidEnergy = fft.getEnergy('lowMid');
-    midEnergy = fft.getEnergy('mid');
-    highMidEnergy = fft.getEnergy('highMid');
-    trebleEnergy = fft.getEnergy('treble');
+    updateAudioEnergies();
+    audioAnimate("numericVariable", "bass", 0, 15);
 
-    setConfigValue('numericVariable', map(bassEnergy, config.ranges.bass.low, config.ranges.bass.high, 0, 15));
   }
 
   if (config.animateConnectionHue) {

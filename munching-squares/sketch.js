@@ -55,7 +55,6 @@ function draw() {
         }
         // fill(colour);
         rect(
-          // ellipse(
           i * boxSize + params.spacing,
           j * boxSize + params.spacing,
           boxSize - params.spacing
