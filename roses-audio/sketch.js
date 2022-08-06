@@ -59,10 +59,9 @@ function setup() {
     ui.forEach((elem) => elem.hide());
   }
 
-  audioAnimator = new AudioAnimator(0.2);
-  // audioAnimator.addProp("zScale", "treble", 0.5, 1);
+  audioAnimator = new AudioAnimator(0.7);
   audioAnimator.addProp("n", "highMid", 1, 50, 8);
-  audioAnimator.addProp("d", "mid", 20, 359, 45);
+  audioAnimator.addProp("d", "mid", 20, 359, 30);
   audioAnimator.addProp("scale", "bass", 150, 250);
 
 }
