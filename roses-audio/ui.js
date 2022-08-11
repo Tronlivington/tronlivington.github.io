@@ -137,6 +137,10 @@ function keyPressed() {
       fullscreen(!fullscreen());
       break;
 
+    case 72: // h - colour rose
+      toggleConfigValue('colourRose');
+      break;
+
     case 82: // Reset audio levels on R
       audioAnimator.resetEnergies();
       break;

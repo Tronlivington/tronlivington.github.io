@@ -64,7 +64,7 @@ function setup() {
   audioAnimator = new AudioAnimator(0.2);
   audioAnimator.addProp("n", "highMid", 1, 50, 8);
   audioAnimator.addProp("d", "lowMid", 20, 359, 15);
-  audioAnimator.addProp("scale", "treble", 150, 250);
+  audioAnimator.addProp("scale", "treble", 0.2, 0.33);
 
 }
 
@@ -143,7 +143,7 @@ function draw() {
     }
     for (let i = 0; i < 361; i++) {
       let k = i * config.d;
-      let r = config.scale * sin(config.n * k);
+      let r = Math.min(windowWidth, windowHeight) * config.scale / 2 * sin(config.n * k);
       let angle = k;
       let { x, y } = p2c(r, angle);
       let z = config.zScale;
@@ -165,7 +165,7 @@ function draw() {
     beginShape();
     for (let i = 0; i < 361; i++) {
       let k = i;
-      let r = config.scale * sin(config.n * k);
+      let r = 2 * Math.min(windowWidth, windowHeight) * config.scale / 2 * sin(config.n * k);
       let angle = k;
       let { x, y } = p2c(r, angle);
       let z = config.zScale;

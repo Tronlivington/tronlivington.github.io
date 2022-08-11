@@ -12,7 +12,10 @@ const config = {
   n: 10,
   d: 49,
   yRotation: 0,
-  scale: 200,
+  scale: 10,
+
+  colourRose: false,
+  hue: 360,
 
   showRose: false,
   showMaurerRose: true,
@@ -45,8 +48,10 @@ function setup() {
   ui.push(new Slider("n", 1, 60, 1));
   ui.push(new Slider("d", 1, 360, 1));
   ui.push(new Slider("zScale", 0, 1, 0.01));
+  ui.push(new Slider("hue", 0, 360, 1));
   ui.push(new Checkbox("showRose"));
   ui.push(new Checkbox("showMaurerRose"));
+  ui.push(new Checkbox("colourRose"));
   ui.push(new Checkbox("rotate"));
   ui.push(new Checkbox("popOut"));
   ui.push(new Checkbox("fill"));
@@ -62,7 +67,8 @@ function setup() {
   audioAnimator = new AudioAnimator(0.7);
   audioAnimator.addProp("n", "highMid", 1, 50, 8);
   audioAnimator.addProp("d", "mid", 20, 359, 30);
-  audioAnimator.addProp("scale", "bass", 150, 250);
+  audioAnimator.addProp("scale", "bass", 0.2, 0.35);
+  audioAnimator.addProp("hue", "lowMid", 0, 360);
 
 }
 
@@ -120,10 +126,13 @@ function draw() {
   // Maurer Rose
   if (config.showMaurerRose) {
 
-    // stroke(0);
-    stroke(255);
+    if (config.colourRose) {
+      colorMode(HSB);
+      stroke(config.hue, 100, 100);
+    } else {
+      stroke(255);
+    }
     strokeWeight(1);
-    // strokeWeight(3);
 
     if (config.fill) {
       fill(0);
@@ -141,7 +150,8 @@ function draw() {
     }
     for (let i = 0; i < 361; i++) {
       let k = i * config.d;
-      let r = config.scale * sin(config.n * k);
+      let r = Math.min(windowWidth, windowHeight) * config.scale / 2 * sin(config.n * k);
+      console.log(windowHeight)
       let angle = k;
       let { x, y } = p2c(r, angle);
       let z = config.zScale;
@@ -163,7 +173,7 @@ function draw() {
     beginShape();
     for (let i = 0; i < 361; i++) {
       let k = i;
-      let r = config.scale * sin(config.n * k);
+      let r = Math.min(windowWidth, windowHeight) * config.scale / 2 * sin(config.n * k);
       let angle = k;
       let { x, y } = p2c(r, angle);
       let z = config.zScale;
