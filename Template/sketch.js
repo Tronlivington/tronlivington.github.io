@@ -1,87 +1,82 @@
-
 const config = {
-
-  backgroundColour: '#0f0f0f',
+  backgroundColour: "#0f0f0f",
   redrawBackground: true,
-  uiColour: 'rgba(0, 100, 220, 1.0)',
+  uiColour: "rgba(0, 100, 220, 1.0)",
   hideUI: true,
 
   numericVariable: 50,
   booleanVariable: false,
-  
+
   reactToAudio: false,
 
-  ranges: {
-    bass: {
-      high: 200,
-      low: 60
-    }
-  }
 };
 
 const ui = [];
-let t = 0;
+let font;
+let audioAnimator;
 let audioRunning = false;
-let bassEnergy, lowMidEnergy, midEnergy, highMidEnergy, trebleEnergy;
+
+function preload() {
+  font = loadFont('Roboto-Regular.ttf');
+}
 
 function setup() {
-
-  createCanvas(windowWidth, windowHeight);
+  // createCanvas(windowWidth, windowHeight);
+  createCanvas(windowWidth, windowHeight, WEBGL);
   textSize(18);
+  textFont(font);
   background(config.backgroundColour);
 
-  mic = new p5.AudioIn();
-  mic.start();
-  fft = new p5.FFT();
-  fft.setInput(mic);
+  // ui.push(new Slider("n", 1, 60, 1));
+  // ui.push(new Checkbox("showRose"));
 
-  ui.push(new Slider('numericVariable', -15, 15, 0.1));
-  ui.push(new Checkbox('booleanVariable'));
 
-  config.hideUI = true;
   if (config.hideUI) {
-    ui.forEach( elem => elem.hide() );
+    ui.forEach((elem) => elem.hide());
   }
+
+  // audioAnimator = new AudioAnimator(0.7);
+  // audioAnimator.addProp("n", "highMid", 1, 50, 8);
 
 }
 
-
 function draw() {
-
-  if (audioRunning && config.reactToAudio) {
-    let spectrum = fft.analyze();
-    bassEnergy = fft.getEnergy('bass');
-    lowMidEnergy = fft.getEnergy('lowMid');
-    midEnergy = fft.getEnergy('mid');
-    highMidEnergy = fft.getEnergy('highMid');
-    trebleEnergy = fft.getEnergy('treble');
-
-    setConfigValue('numericVariable', map(bassEnergy, config.ranges.bass.low, config.ranges.bass.high, 0, 15));
-  }
-
-  if (config.animateConnectionHue) {
-    animateConfigValue('numericVariable', 1, 360, 2);
-  }
-  t += 0.001;
+  // orbitControl();
 
   if (config.redrawBackground) {
-    resizeCanvas(windowWidth, windowHeight);
+    if (width != windowWidth || height != windowHeight) {
+      resizeCanvas(windowWidth, windowHeight);
+    }
     background(config.backgroundColour);
   }
 
+  ui.forEach((elem) => elem.update());
+
+  if (!config.hideUI) {
+    ui.forEach((elem) => elem.draw());
+  }
+
+
+  if (config.reactToAudio) {
+    audioAnimator.update();
+  }
 
   // CONTENTS
 
-
-  ui.forEach(elem => elem.update());
-
-  if (!config.hideUI) {
-    ui.forEach(elem => elem.draw());
-  }
-
 }
 
+const p2c = (r, angle) => ({
+  x: r * cos(angle),
+  y: r * sin(angle),
+});
 
-const animateConfigValue = (valueName, min, max, speed) => {
-  setConfigValue(valueName, map(sin(speed * t), -1, 1, min, max) );
+const oscillate = (prop, min, max, speed) => {
+  setConfigValue(prop, map(Math.sin(speed * frameCount), -1, 1, min, max));
+}
+
+function mousePressed() {
+  if (!audioRunning) {
+    userStartAudio();
+    audioRunning = true;
+  }
 }
