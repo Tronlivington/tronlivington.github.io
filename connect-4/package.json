@@ -1,0 +1,22 @@
+{
+  "name": "connect-4",
+  "version": "1.0.0",
+  "description": "",
+  "main": "draw.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/p5": "^1.6.1",
+    "p5": "^1.6.0",
+    "prompt-sync": "^4.2.0"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^18.16.0",
+    "@types/prompt-sync": "^4.2.0"
+  }
+}
