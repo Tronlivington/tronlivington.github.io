@@ -132,14 +132,12 @@ function keyPressed() {
     case 66: // b
       break;
 
-    case 82: // R - Reset scaling
-      if (visualizer) {
-        visualizer.resetScaling();
-      }
+    case 82: // R
       break;
 
     case 32: // Space - Toggle audio visualiser
       toggleConfigValue("reactToAudio");
+      K;
       break;
 
     case 70: // F - Fullscreen
@@ -153,22 +151,23 @@ function keyPressed() {
       F          Toggle fullscreen
       Z          Toggle UI
       X          Toggle background redraw
-      R          Reset frequency scaling
       Space      Toggle Audio Visualiser
       `);
   }
 
   // Apply Presets on number row
   if (48 < keyCode && keyCode < 60) {
-    let presetNumber = keyCode - 49;
-    applyPreset(presetNumber);
+    // let presetNumber = keyCode - 49;
+    // applyPreset(presetNumber);
+    // Set particle count on visualiser to 1000x the number pressed
+    let presetNumber = keyCode - 48;
+    visualizer.numParticles = presetNumber * 1000;
+    console.log("Set numParticles to " + visualizer.numParticles);
   }
 }
 
 // Set speed with mouse wheel
-function mouseWheel(event) {
-  setConfigValue("numericValue", config.particleCount - event.delta / 50);
-}
+function mouseWheel(event) {}
 
 function mousePressed() {
   if (!audioRunning) {

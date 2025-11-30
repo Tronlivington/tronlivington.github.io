@@ -1,17 +1,17 @@
 // Music Visualizer with Stars and Particles
 
 class Star {
-  constructor(x, y, frequencyBand, color, scale = 1.0) {
+  constructor(x, y, frequencyBand, scale = 1.0, hue = 0) {
     this.pos = createVector(x, y);
     this.frequencyBand = frequencyBand;
-    this.color = color;
     this.scale = scale;
-    this.baseRadius = 30;
+    this.baseRadius = 40;
     this.radius = this.baseRadius;
     this.mass = 0;
     this.targetMass = 0;
     this.massSmoothing = 0.1;
     this.strengthMultiplier = 100;
+    this.hue = hue;
 
     // Track min/max for dynamic scaling
     this.minEnergy = 255;
@@ -60,23 +60,27 @@ class Star {
     push();
     translate(this.pos.x, this.pos.y);
 
-    // Glow effect
-    let glowSize = this.radius * 1.5;
-    for (let i = glowSize; i > 0; i -= glowSize / 10) {
-      let alpha = map(i, 0, glowSize, 100, 0);
-      fill(red(this.color), green(this.color), blue(this.color), alpha);
+    // Switch to HSB mode with alpha support
+    colorMode(HSB, 360, 100, 100, 100);
+
+    // Soft glow effect
+    let glowSize = this.radius * 0.99;
+    for (let i = glowSize; i > 0; i -= 2) {
+      let alpha = map(i, 0, glowSize, 25, 0);
+      fill(this.hue, 80, 100, alpha);
       noStroke();
       circle(0, 0, i);
     }
 
-    // Core star
-    fill(this.color);
-    circle(0, 0, this.radius);
+    // Core star - small and semi-transparent
+    fill(this.hue, 80, 100, 45);
+    circle(0, 0, this.radius * 0.7);
 
-    // Inner highlight
-    fill(255, 255, 255, 150);
-    circle(0, 0, this.radius * 0.3);
+    // Inner highlight - tiny bright center
+    fill(this.hue, 40, 100, 70);
+    circle(0, 0, this.radius * 0.1);
 
+    colorMode(RGB);
     pop();
   }
 
@@ -98,8 +102,9 @@ class Star {
   }
 
   checkAbsorption(particle) {
+    if (this.radius > this.baseRadius) return false; // Only absorb when attracting
     let d = p5.Vector.dist(this.pos, particle.pos);
-    return d + 5 < this.radius;
+    return d + this.baseRadius / 2.5 < this.radius;
   }
 
   shouldEmit() {
@@ -122,7 +127,7 @@ class Star {
 }
 
 class Particle {
-  constructor(x, y, numStars = 5, initialHue = 140) {
+  constructor(x, y, initialHue = 140) {
     this.pos = createVector(x, y);
     this.vel = p5.Vector.random2D().mult(random(1, 4));
     this.acc = createVector(0, 0);
@@ -130,19 +135,6 @@ class Particle {
     this.maxSpeed = 8;
     this.size = random(2, 5);
     this.hue = initialHue;
-
-    // Randomly select 2 stars to ignore
-    this.ignoredStars = [];
-    // let indices = [];
-    // for (let i = 0; i < numStars; i++) {
-    //   indices.push(i);
-    // }
-    // // Shuffle and pick first 2
-    // for (let i = 0; i < 3; i++) {
-    //   let randomIndex = floor(random(indices.length));
-    //   this.ignoredStars.push(indices[randomIndex]);
-    //   indices.splice(randomIndex, 1);
-    // }
   }
 
   applyForce(force) {
@@ -155,28 +147,6 @@ class Particle {
     this.vel.limit(this.maxSpeed);
     this.pos.add(this.vel);
     this.acc.mult(0);
-
-    // // Apply circular repulsion force from center
-    // // Calculate distance from center
-    // let minDimension = min(width, height);
-    // let starOrbitRadius = minDimension * 0.35;
-    // let repelRadius = starOrbitRadius + 50; // Repulsion starts at star orbit radius
-    // let repelZone = 100; // How far inward the repulsion extends
-
-    // let distFromCenter = this.pos.mag();
-
-    // // If particle is beyond the star orbit radius, push it back
-    // if (distFromCenter > repelRadius - repelZone) {
-    //   let penetration = distFromCenter - (repelRadius - repelZone);
-    //   let force = map(penetration, 0, repelZone, 0, 200);
-
-    //   // Create force pointing toward center
-    //   let repelForce = this.pos.copy();
-    //   repelForce.normalize();
-    //   repelForce.mult(-force);
-
-    //   this.acc.add(repelForce);
-    // }
   }
 
   draw() {
@@ -194,34 +164,30 @@ class MusicVisualizer {
     this.stars = [];
     this.particles = [];
     this.numParticles = 4000;
-    this.speedMultiplier = 1.0;
+    this.speedMultiplier = 1;
     this.rotationAngle = 0;
     this.rotateStars = true;
 
     // Create stars for each frequency band
     let bands = [
-      { name: "bass", color: color(255, 0, 100), angle: 0, scale: 1.0 },
+      { name: "bass", angle: 0, scale: 1.0 },
       {
         name: "lowMid",
-        color: color(255, 150, 0),
         angle: TWO_PI / 5,
         scale: 1,
       },
       {
         name: "mid",
-        color: color(255, 255, 0),
         angle: (TWO_PI * 2) / 5,
         scale: 1,
       },
       {
         name: "highMid",
-        color: color(0, 255, 150),
         angle: (TWO_PI * 3) / 5,
         scale: 1,
       },
       {
         name: "treble",
-        color: color(100, 150, 255),
         angle: (TWO_PI * 4) / 5,
         scale: 1,
       },
@@ -231,11 +197,13 @@ class MusicVisualizer {
     bands.forEach((band, index) => {
       let x = cos(band.angle) * orbitRadius;
       let y = sin(band.angle) * orbitRadius;
-      let star = new Star(x, y, band.name, band.color, band.scale);
+
+      // Assign hue based on frequency band (0-300 to avoid wrapping back to red)
+      let hue = map(index, 0, bands.length - 1, 0, 300);
+
+      let star = new Star(x, y, band.name, band.scale, hue);
       star.initialAngle = band.angle;
       star.orbitRadius = orbitRadius;
-      // Assign hue based on frequency band
-      star.hue = map(index, 0, bands.length - 1, 0, 280);
       this.stars.push(star);
     });
 
@@ -243,8 +211,9 @@ class MusicVisualizer {
     for (let i = 0; i < this.numParticles; i++) {
       let x = random(-width / 2, width / 2);
       let y = random(-height / 2, height / 2);
-      let randomHue = random(0, 280); // Random hue from star range
-      this.particles.push(new Particle(x, y, this.stars.length, randomHue));
+      // Assign each initial particle a random star's hue
+      let randomStar = random(this.stars);
+      this.particles.push(new Particle(x, y, randomStar.hue));
     }
   }
 
@@ -280,25 +249,10 @@ class MusicVisualizer {
       star.pos.y = sin(currentAngle) * star.orbitRadius;
     });
 
-    // Apply forces to particles and set hue based on closest star
+    // Apply forces to particles
     // Also check for absorption
     for (let i = this.particles.length - 1; i >= 0; i--) {
       let particle = this.particles[i];
-
-      // Find closest star to this particle
-      let closestStar = this.stars[0];
-      let closestDist = p5.Vector.dist(particle.pos, closestStar.pos);
-
-      this.stars.forEach((star, index) => {
-        let d = p5.Vector.dist(particle.pos, star.pos);
-        if (d < closestDist) {
-          closestDist = d;
-          closestStar = star;
-        }
-      });
-
-      // Set particle hue based on closest star
-      particle.hue = closestStar.hue;
 
       // Check if particle should be absorbed by any star
       let absorbed = false;
@@ -327,23 +281,15 @@ class MusicVisualizer {
       }
 
       this.stars.forEach((star, index) => {
-        // Skip ignored stars
-        if (!particle.ignoredStars.includes(index)) {
-          let force = star.applyForce(particle);
-          particle.applyForce(force);
-        }
+        let force = star.applyForce(particle);
+        particle.applyForce(force);
       });
       particle.update(this.speedMultiplier);
     }
 
     // Emit particles from large stars
     shuffledStars.forEach((star) => {
-      if (
-        star.shouldEmit() &&
-        // random() < 0.15 &&
-        this.particles.length < this.numParticles
-      ) {
-        // 15% chance per frame, only if below max particle count
+      if (star.shouldEmit() && this.particles.length < this.numParticles) {
         let emitCount = star.getEmissionCount();
         let remainingSlots = this.numParticles - this.particles.length;
         emitCount = min(emitCount, remainingSlots); // Cap by available slots
@@ -359,14 +305,21 @@ class MusicVisualizer {
           let speed = random(5, 8);
 
           // Spawn particle at star's edge in the emission direction
-          let offsetDist = star.radius;
+          let offsetDist = star.radius - 15;
           let x = star.pos.x + cos(angle) * offsetDist;
           let y = star.pos.y + sin(angle) * offsetDist;
 
-          let newParticle = new Particle(x, y, this.stars.length, star.hue);
+          // Particle belongs to the emitting star
+          let newParticle = new Particle(x, y, star.hue);
           // Set velocity directly in the emission direction
           newParticle.vel.x = cos(angle) * speed;
           newParticle.vel.y = sin(angle) * speed;
+          // Add star's current velocity to particle for smoother motion
+          const starAngle = atan2(star.pos.y, star.pos.x);
+          const starTangentialSpeed = this.rotationAngle * star.orbitRadius;
+          newParticle.vel.x += -sin(starAngle) * starTangentialSpeed;
+          newParticle.vel.y += cos(starAngle) * starTangentialSpeed;
+
           this.particles.push(newParticle);
         }
       }
@@ -427,13 +380,14 @@ class MusicVisualizer {
     rect(startX + barOffsetX, startY - barHeight / 2, fillWidth, barHeight);
 
     // Draw each frequency band
+    colorMode(HSB, 360, 100, 100);
     this.stars.forEach((star, index) => {
       let yPos = startY + spacing * (index + 1);
       let energy = audioAnimator.energies[star.frequencyBand].curr;
       let scaledEnergy = constrain(energy * star.scale, 0, 255);
 
       // Label with min/max values
-      fill(star.color);
+      fill(star.hue, 80, 100);
       noStroke();
       text(
         `${star.frequencyBand}: ${floor(scaledEnergy)} [${floor(
@@ -452,9 +406,10 @@ class MusicVisualizer {
       // Fill bar
       let fillWidth = map(scaledEnergy, 0, 255, 0, barWidth);
       noStroke();
-      fill(star.color);
+      fill(star.hue, 80, 100);
       rect(startX + barOffsetX, yPos - barHeight / 2, fillWidth, barHeight);
     });
+    colorMode(RGB);
 
     pop();
   }

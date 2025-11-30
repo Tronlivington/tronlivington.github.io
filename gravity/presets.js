@@ -1,3 +1,1 @@
-const presets = [
-
-];
+const presets = [];

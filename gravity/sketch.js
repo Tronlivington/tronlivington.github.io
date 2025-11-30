@@ -4,9 +4,9 @@ const config = {
   uiColour: "rgba(0, 100, 220, 1.0)",
   hideUI: true,
 
-  numParticles: 200,
-  particleSpeed: 1.0,
-  gravityStrength: 1.0,
+  // numParticles: 3000,
+  // particleSpeed: 1.0,
+  // gravityStrength: 1.0,
 
   reactToAudio: true,
 };
