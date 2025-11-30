@@ -24,7 +24,8 @@ function setup() {
   config.hideUI = true;
 
   createCanvas(windowWidth, windowHeight, WEBGL);
-  frameRate(30);
+  frameRate(35);
+  // frameRate(120);
 
   textSize(18);
   textFont(font);

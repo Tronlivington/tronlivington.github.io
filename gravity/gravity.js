@@ -169,7 +169,8 @@ class MusicVisualizer {
   constructor() {
     this.stars = [];
     this.particles = [];
-    this.numParticles = 8000;
+    // this.numParticles = 1000;
+    this.numParticles = 10000;
     this.speedMultiplier = 1;
     this.rotationAngle = 0;
     this.rotateStars = true;
@@ -366,6 +367,18 @@ class MusicVisualizer {
 
           // Particle belongs to the emitting star
           let newParticle = new Particle(x, y, star.hue);
+
+          // Set particle size based on random + star radius (which scales with energy)
+          // Star radius ranges from baseRadius*0.5 to baseRadius*2
+          let radiusFactor = map(
+            star.radius,
+            star.baseRadius,
+            star.baseRadius * 2,
+            1,
+            4
+          );
+          newParticle.size = random(0.5, 1.5) * radiusFactor;
+
           // Set velocity directly in the emission direction
           newParticle.vel.x = cos(angle) * speed;
           newParticle.vel.y = sin(angle) * speed;
