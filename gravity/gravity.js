@@ -143,27 +143,33 @@ class Particle {
 
   update(speedMultiplier = 1.0) {
     this.maxSpeed = this.baseMaxSpeed * speedMultiplier;
-    this.vel.add(this.acc);
-    this.vel.limit(this.maxSpeed);
-    this.pos.add(this.vel);
-    this.acc.mult(0);
+
+    // Direct math operations instead of vector methods
+    this.vel.x += this.acc.x;
+    this.vel.y += this.acc.y;
+
+    // Manual velocity limiting (faster than p5.Vector.limit)
+    const velMagSq = this.vel.x * this.vel.x + this.vel.y * this.vel.y;
+    if (velMagSq > this.maxSpeed * this.maxSpeed) {
+      const scale = this.maxSpeed / sqrt(velMagSq);
+      this.vel.x *= scale;
+      this.vel.y *= scale;
+    }
+
+    this.pos.x += this.vel.x;
+    this.pos.y += this.vel.y;
+    this.acc.x = 0;
+    this.acc.y = 0;
   }
 
-  draw() {
-    // Draw particle with HSB color
-    colorMode(HSB, 360, 100, 100);
-    fill(this.hue, 80, 100);
-    noStroke();
-    circle(this.pos.x, this.pos.y, this.size);
-    colorMode(RGB);
-  }
+  // Note: draw() removed - now handled by batched rendering in MusicVisualizer
 }
 
 class MusicVisualizer {
   constructor() {
     this.stars = [];
     this.particles = [];
-    this.numParticles = 4000;
+    this.numParticles = 8000;
     this.speedMultiplier = 1;
     this.rotationAngle = 0;
     this.rotateStars = true;
@@ -237,9 +243,7 @@ class MusicVisualizer {
     }
 
     // Update stars with audio energy and rotate positions
-    // Randomize star update order
-    let shuffledStars = [...this.stars].sort(() => random() - 0.5);
-    shuffledStars.forEach((star) => {
+    this.stars.forEach((star) => {
       let energy = audioAnimator.energies[star.frequencyBand].curr;
       star.update(energy);
 
@@ -250,44 +254,95 @@ class MusicVisualizer {
     });
 
     // Apply forces to particles
-    // Also check for absorption
+    // Cache boundary values
+    const halfWidth = width / 2;
+    const halfHeight = height / 2;
+    const numStars = this.stars.length;
+
+    // Pre-cache star positions and masses for faster access
+    const starData = [];
+    for (let j = 0; j < numStars; j++) {
+      const star = this.stars[j];
+      const absorbRadius = star.radius * 0.15;
+      starData.push({
+        x: star.pos.x,
+        y: star.pos.y,
+        mass: star.mass,
+        radius: star.radius,
+        strengthMult: star.strengthMultiplier,
+        absorbRadiusSq: absorbRadius * absorbRadius,
+      });
+    }
+
+    // Process particles in reverse for safe removal
     for (let i = this.particles.length - 1; i >= 0; i--) {
       let particle = this.particles[i];
+      const px = particle.pos.x;
+      const py = particle.pos.y;
 
-      // Check if particle should be absorbed by any star
+      // Check if particle is offscreen (early exit)
+      if (
+        px < -halfWidth ||
+        px > halfWidth ||
+        py < -halfHeight ||
+        py > halfHeight
+      ) {
+        this.particles.splice(i, 1);
+        continue;
+      }
+
+      // Check for absorption by any star
       let absorbed = false;
-      this.stars.forEach((star) => {
-        if (star.checkAbsorption(particle)) {
+      for (let j = 0; j < numStars; j++) {
+        const sd = starData[j];
+        // Quick distance check using squared distance (avoid sqrt)
+        const dx = sd.x - px;
+        const dy = sd.y - py;
+        const distSq = dx * dx + dy * dy;
+
+        if (distSq < sd.absorbRadiusSq) {
           absorbed = true;
         }
-      });
+      }
 
       if (absorbed) {
         this.particles.splice(i, 1);
         continue;
       }
 
-      // Check if particle is offscreen
-      let halfWidth = width / 2;
-      let halfHeight = height / 2;
-      if (
-        particle.pos.x < -halfWidth ||
-        particle.pos.x > halfWidth ||
-        particle.pos.y < -halfHeight ||
-        particle.pos.y > halfHeight
-      ) {
-        this.particles.splice(i, 1);
-        continue;
+      // Apply forces from stars - optimized calculations
+      let fx = 0,
+        fy = 0;
+      for (let j = 0; j < numStars; j++) {
+        const sd = starData[j];
+        const dx = sd.x - px;
+        const dy = sd.y - py;
+        const distSq = dx * dx + dy * dy;
+
+        // Skip if too close or too far
+        if (distSq < 100 || distSq > 250000) {
+          const clamped = distSq < 100 ? 100 : 250000;
+          const strength = (sd.mass * 50 * sd.strengthMult) / clamped;
+          const invDist = 1 / sqrt(clamped);
+          fx += dx * invDist * strength;
+          fy += dy * invDist * strength;
+        } else {
+          // Normal case - use fast calculation
+          const strength = (sd.mass * 50 * sd.strengthMult) / distSq;
+          const invDist = 1 / sqrt(distSq);
+          fx += dx * invDist * strength;
+          fy += dy * invDist * strength;
+        }
       }
 
-      this.stars.forEach((star, index) => {
-        let force = star.applyForce(particle);
-        particle.applyForce(force);
-      });
+      particle.acc.x += fx;
+      particle.acc.y += fy;
       particle.update(this.speedMultiplier);
     }
 
     // Emit particles from large stars
+    // Randomize order so all frequencies get fair chance to emit
+    let shuffledStars = [...this.stars].sort(() => random() - 0.5);
     shuffledStars.forEach((star) => {
       if (star.shouldEmit() && this.particles.length < this.numParticles) {
         let emitCount = star.getEmissionCount();
@@ -327,8 +382,31 @@ class MusicVisualizer {
   }
 
   draw() {
-    // Draw particles
-    this.particles.forEach((particle) => particle.draw());
+    // Batch render all particles in HSB mode
+    colorMode(HSB, 360, 100, 100);
+    noStroke();
+
+    // Group particles by hue for batched rendering
+    // This reduces color mode switches
+    const particlesByHue = new Map();
+    for (let i = 0; i < this.particles.length; i++) {
+      const p = this.particles[i];
+      if (!particlesByHue.has(p.hue)) {
+        particlesByHue.set(p.hue, []);
+      }
+      particlesByHue.get(p.hue).push(p);
+    }
+
+    // Draw particles grouped by color
+    particlesByHue.forEach((particles, hue) => {
+      fill(hue, 80, 100);
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        circle(p.pos.x, p.pos.y, p.size);
+      }
+    });
+
+    colorMode(RGB);
 
     // Draw stars
     this.stars.forEach((star) => star.draw());
