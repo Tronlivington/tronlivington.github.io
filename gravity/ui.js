@@ -169,13 +169,6 @@ function keyPressed() {
 // Set speed with mouse wheel
 function mouseWheel(event) {}
 
-function mousePressed() {
-  if (!audioRunning) {
-    userStartAudio();
-    audioRunning = true;
-  }
-}
-
 // ----------------------- Helper Functions -----------------------
 const applyPreset = (index) => {
   let preset = presets[index];

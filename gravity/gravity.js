@@ -430,7 +430,7 @@ class MusicVisualizer {
   }
 
   drawUI() {
-    if (!audioAnimator || config.hideUI) return;
+    if (!audioAnimator) return;
 
     push();
     // Reset transformations for UI - switch to 2D coordinates
@@ -502,11 +502,73 @@ class MusicVisualizer {
     });
     colorMode(RGB);
 
+    // Draw controls below the level bars
+    let controlsY = startY + spacing * (this.stars.length + 2);
+
+    // Particle count control
+    fill(255);
+    noStroke();
+    textAlign(LEFT, CENTER);
+    text(`Particles: ${this.numParticles}`, startX, controlsY);
+
+    // Draw slider background
+    stroke(100);
+    strokeWeight(1);
+    noFill();
+    rect(startX + barOffsetX, controlsY - barHeight / 2, barWidth, barHeight);
+
+    // Draw slider fill
+    let particleFill = map(this.numParticles, 500, 15000, 0, barWidth);
+    noStroke();
+    fill(100, 255, 100); // Brighter green
+    rect(
+      startX + barOffsetX,
+      controlsY - barHeight / 2,
+      particleFill,
+      barHeight
+    );
+
+    // Framerate control
+    controlsY += spacing;
+    let currentFR = floor(frameRate());
+    let targetFR = getTargetFrameRate();
+    fill(255);
+    noStroke();
+    textAlign(LEFT, CENTER);
+    text(`Framerate: ${targetFR} (${currentFR} fps)`, startX, controlsY);
+
+    // Draw slider background
+    stroke(100);
+    strokeWeight(1);
+    noFill();
+    rect(startX + barOffsetX, controlsY - barHeight / 2, barWidth, barHeight);
+
+    // Draw slider fill
+    let framerateFill = map(targetFR, 24, 144, 0, barWidth);
+    noStroke();
+    fill(255, 100, 100); // Brighter red
+    rect(
+      startX + barOffsetX,
+      controlsY - barHeight / 2,
+      framerateFill,
+      barHeight
+    );
+
     pop();
   }
 }
 
 let visualizer;
+let targetFrameRate = 35;
+
+function getTargetFrameRate() {
+  return targetFrameRate;
+}
+
+function setTargetFrameRate(value) {
+  targetFrameRate = constrain(value, 24, 144);
+  frameRate(targetFrameRate);
+}
 
 function initVisualizer() {
   visualizer = new MusicVisualizer();

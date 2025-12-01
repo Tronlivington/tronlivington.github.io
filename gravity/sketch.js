@@ -86,4 +86,83 @@ function mousePressed() {
     userStartAudio();
     audioRunning = true;
   }
+
+  // Check if clicking on control sliders
+  if (visualizer && !config.hideUI) {
+    let barWidth = 200;
+    let barHeight = 20;
+    let spacing = 30;
+    let startX = 20;
+    let startY = 20;
+    let barOffsetX = 200;
+
+    let mx = mouseX;
+    let my = mouseY;
+
+    // Particle count slider
+    let particleControlY = startY + spacing * (visualizer.stars.length + 2);
+
+    if (
+      mx >= startX + barOffsetX &&
+      mx <= startX + barOffsetX + barWidth &&
+      my >= particleControlY - barHeight / 2 &&
+      my <= particleControlY + barHeight / 2
+    ) {
+      let newCount = floor(
+        map(mx - (startX + barOffsetX), 0, barWidth, 500, 15000)
+      );
+      visualizer.numParticles = constrain(newCount, 500, 15000);
+    }
+
+    // Framerate slider
+    let framerateControlY = particleControlY + spacing;
+    if (
+      mx >= startX + barOffsetX &&
+      mx <= startX + barOffsetX + barWidth &&
+      my >= framerateControlY - barHeight / 2 &&
+      my <= framerateControlY + barHeight / 2
+    ) {
+      let newFR = floor(map(mx - (startX + barOffsetX), 0, barWidth, 24, 144));
+      setTargetFrameRate(newFR);
+    }
+  }
+}
+
+function mouseDragged() {
+  // Same logic as mousePressed for dragging
+  if (visualizer && !config.hideUI) {
+    let barWidth = 200;
+    let barHeight = 20;
+    let spacing = 30;
+    let startX = 20;
+    let startY = 20;
+    let barOffsetX = 200;
+
+    let mx = mouseX;
+    let my = mouseY;
+
+    let particleControlY = startY + spacing * (visualizer.stars.length + 2);
+    if (
+      mx >= startX + barOffsetX &&
+      mx <= startX + barOffsetX + barWidth &&
+      my >= particleControlY - barHeight / 2 &&
+      my <= particleControlY + barHeight / 2
+    ) {
+      let newCount = floor(
+        map(mx - (startX + barOffsetX), 0, barWidth, 500, 15000)
+      );
+      visualizer.numParticles = constrain(newCount, 500, 15000);
+    }
+
+    let framerateControlY = particleControlY + spacing;
+    if (
+      mx >= startX + barOffsetX &&
+      mx <= startX + barOffsetX + barWidth &&
+      my >= framerateControlY - barHeight / 2 &&
+      my <= framerateControlY + barHeight / 2
+    ) {
+      let newFR = floor(map(mx - (startX + barOffsetX), 0, barWidth, 24, 144));
+      setTargetFrameRate(newFR);
+    }
+  }
 }
