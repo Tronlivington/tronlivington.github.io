@@ -14,7 +14,7 @@ class Boid {
 
   show() {
     stroke(255);
-    let endPoint = p5.Vector.add(this.pos, this.vel)
+    let endPoint = p5.Vector.add(this.pos, this.vel);
     line(this.pos.x, this.pos.y, endPoint.x, endPoint.y);
   }
 }
@@ -31,6 +31,6 @@ const getFlockCentroid = (flock) => {
   }
   circle(centroid.x, centroid.y, 10, 10);
 
-  return createVector(mouseX, mouseY);
+  // return createVector(mouseX, mouseY);
   return centroid;
-}
+};
