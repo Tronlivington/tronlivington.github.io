@@ -20,13 +20,15 @@ class UiElement {
   }
 }
 
-
 class Slider extends UiElement {
   constructor(variableName, minVal, maxVal, step = 1) {
     super(variableName);
     this.element = createSlider(minVal, maxVal, config[variableName], step);
     this.element.position(20, 20 * this.index);
-    this.captionPosition = createVector(this.element.x * 2 + this.element.width, this.element.y + 15);
+    this.captionPosition = createVector(
+      this.element.x * 2 + this.element.width,
+      this.element.y + 15
+    );
   }
 
   update() {
@@ -42,13 +44,15 @@ class Slider extends UiElement {
   }
 }
 
-
 class Checkbox extends UiElement {
   constructor(variableName) {
     super(variableName);
-    this.element = createCheckbox('', config[variableName]);
+    this.element = createCheckbox("", config[variableName]);
     this.element.position(130, 20 * this.index);
-    this.captionPosition = createVector(this.element.x + 40, this.element.y + 15);
+    this.captionPosition = createVector(
+      this.element.x + 40,
+      this.element.y + 15
+    );
   }
 
   invertCheck() {
@@ -68,15 +72,19 @@ class Checkbox extends UiElement {
   }
 }
 
-
 class ColourPicker extends UiElement {
   constructor(variableName) {
     super(variableName);
     // noStroke();
     this.element = createColorPicker(config[variableName]);
-    this.element.input( () => config[this.variableName] = this.element.color() );
+    this.element.input(
+      () => (config[this.variableName] = this.element.color())
+    );
     this.element.position(100, 20 * this.index);
-    this.captionPosition = createVector(this.element.x + 70, this.element.y + 15);
+    this.captionPosition = createVector(
+      this.element.x + 70,
+      this.element.y + 15
+    );
   }
 
   update() {
@@ -94,7 +102,6 @@ class ColourPicker extends UiElement {
   }
 }
 
-
 // ----------------------- Key Bindings -----------------------
 function keyPressed() {
   if (!audioRunning) {
@@ -106,16 +113,16 @@ function keyPressed() {
     case 90: // Z - Hide UI
       config.hideUI = !config.hideUI;
       if (config.hideUI) {
-        ui.forEach( elem => elem.hide() );
+        ui.forEach((elem) => elem.hide());
       } else {
-        ui.forEach( elem => elem.show() );
+        ui.forEach((elem) => elem.show());
       }
       break;
 
     case 88: // X - Toggle background redraw
-      setConfigValue('redrawBackground', !config.redrawBackground);
+      setConfigValue("redrawBackground", !config.redrawBackground);
       break;
-    
+
     case 67: // C
       break;
 
@@ -126,7 +133,7 @@ function keyPressed() {
       break;
 
     case 32: // Space - Toggle audio visualiser
-      toggleConfigValue('reactToAudio');
+      toggleConfigValue("reactToAudio");
       break;
 
     case 70: // F - Fullscreen
@@ -145,7 +152,7 @@ function keyPressed() {
   }
 
   // Apply Presets on number row
-  if  (48 < keyCode && keyCode < 60 ) {
+  if (48 < keyCode && keyCode < 60) {
     let presetNumber = keyCode - 49;
     applyPreset(presetNumber);
   }
@@ -153,9 +160,8 @@ function keyPressed() {
 
 // Set speed with mouse wheel
 function mouseWheel(event) {
-  setConfigValue('numericValue', config.particleCount - event.delta/50);
+  setConfigValue("numericValue", config.particleCount - event.delta / 50);
 }
-
 
 function mousePressed() {
   if (!audioRunning) {
@@ -164,26 +170,27 @@ function mousePressed() {
   }
 }
 
-
 // ----------------------- Helper Functions -----------------------
 const applyPreset = (index) => {
   let preset = presets[index];
-  if (!preset) { return; }
+  if (!preset) {
+    return;
+  }
   for (let variableName in preset) {
     let value = preset[variableName];
     setConfigValue(variableName, value);
   }
-}
+};
 
 const setConfigValue = (variableName, value) => {
-  let uiElement = ui.filter( elem => elem.variableName == variableName );
+  let uiElement = ui.filter((elem) => elem.variableName == variableName);
   if (uiElement.length > 0) {
-    uiElement.forEach( elem => elem.setValue(value) );
+    uiElement.forEach((elem) => elem.setValue(value));
   } else {
     config[variableName] = value;
   }
-}
+};
 
 const toggleConfigValue = (variableName) => {
   setConfigValue(variableName, !config[variableName]);
-}
+};
